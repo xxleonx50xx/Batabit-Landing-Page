@@ -528,7 +528,9 @@ def main():
     ap.add_argument("--config", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "search.json"))
     ap.add_argument("--out", default=None, help="MP4 H.264 de salida (o PNG con --frame)")
     ap.add_argument("--prores", default=None, help="ProRes 422 HQ (.mov) con el fondo chroma: ideal para keying")
-    ap.add_argument("--alpha", default=None, help="ProRes 4444 (.mov) con fondo transparente (sin chroma)")
+    ap.add_argument("--alpha", default=None, help="fondo transparente (.mov) sin chroma; códec según --alpha-codec")
+    ap.add_argument("--alpha-codec", choices=["prores", "animation"], default="prores",
+                    help="prores = ProRes 4444 (10 bits, ~45 MB); animation = QuickTime Animation RGBA, sin pérdida y mucho más ligero para gráficos planos")
     ap.add_argument("--size", default=None, help="ANCHOxALTO, p. ej. 1920x1080 (por defecto el de search.json)")
     ap.add_argument("--fps", type=int, default=None)
     ap.add_argument("--text", default=None, help="texto que se escribe en la barra")
@@ -573,7 +575,10 @@ def main():
 
     sinks = []
     if args.alpha:
-        sinks.append({"path": args.alpha, "codec": ["-c:v", "prores_ks", "-profile:v", "4444"], "pix": "yuva444p10le", "rgba": True})
+        if args.alpha_codec == "animation":
+            sinks.append({"path": args.alpha, "codec": ["-c:v", "qtrle"], "pix": "argb", "rgba": True})
+        else:
+            sinks.append({"path": args.alpha, "codec": ["-c:v", "prores_ks", "-profile:v", "4444"], "pix": "yuva444p10le", "rgba": True})
     if args.prores:
         sinks.append({"path": args.prores, "codec": ["-c:v", "prores_ks", "-profile:v", "3"], "pix": "yuv422p10le", "rgba": False})
     if args.out or not sinks:

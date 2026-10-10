@@ -48,6 +48,9 @@ python3 search_anim.py --prores busqueda_chroma_422hq.mov
 # Fondo transparente (ProRes 4444 con alfa): se monta directamente, sin chroma key
 python3 search_anim.py --alpha busqueda_alpha.mov
 
+# Lo mismo en QuickTime Animation (RGBA sin pérdida, ~10x más ligero para gráficos planos)
+python3 search_anim.py --alpha busqueda_alpha_animation.mov --alpha-codec animation
+
 # Otro texto, otro chroma, un solo fotograma de revisión, hoja de contactos
 python3 search_anim.py --text "¿Dónde está GreenMex?" --bg "#00FF00" --out verde.mp4
 python3 search_anim.py --frame 2.4 --out revision.png
