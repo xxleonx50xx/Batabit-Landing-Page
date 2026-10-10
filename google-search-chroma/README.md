@@ -54,8 +54,9 @@ python3 search_anim.py --frame 2.4 --out revision.png
 python3 search_anim.py --contact hoja.png
 ```
 
-Un render de 5 s tarda ~3–5 min por salida (casi todos los fotogramas tienen movimiento y se componen con
-4 u 8 sub-fotogramas).
+Un render de 5 s tarda ~3–5 min (casi todos los fotogramas tienen movimiento y se componen con 4 u 8
+sub-fotogramas). Si pides varias salidas a la vez (`--out`, `--prores` y `--alpha` juntos) se renderiza una
+sola vez y se codifican todas en el mismo pase.
 
 ## Chroma key en postproducción
 

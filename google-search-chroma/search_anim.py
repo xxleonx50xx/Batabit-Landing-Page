@@ -490,24 +490,37 @@ class SearchAnimation:
 # ----------------------------------------------------------------------------- salida
 
 
-def encode(anim, path, codec_args, pix, rgba=False, label=""):
-    fmt_pix = "rgba" if rgba else "rgb24"
-    enc = subprocess.Popen(["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", fmt_pix,
-                            "-s", f"{anim.W}x{anim.H}", "-r", str(anim.fps), "-i", "-"] + codec_args +
-                           ["-pix_fmt", pix, "-r", str(anim.fps), path], stdin=subprocess.PIPE)
+def encode_all(anim, sinks):
+    """Renderiza cada fotograma UNA sola vez y lo envía a todas las salidas (MP4, ProRes, alfa) a la vez.
+
+    sinks: lista de dicts {path, codec: [args ffmpeg], pix: formato de píxel de salida, rgba: bool}
+    """
+    procs = []
+    for s in sinks:
+        fmt_pix = "rgba" if s["rgba"] else "rgb24"
+        procs.append(subprocess.Popen(
+            ["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", fmt_pix,
+             "-s", f"{anim.W}x{anim.H}", "-r", str(anim.fps), "-i", "-"] + s["codec"] +
+            ["-pix_fmt", s["pix"], "-r", str(anim.fps), s["path"]], stdin=subprocess.PIPE))
+    bg = np.array(anim.bg, np.float32) / 255.0
+    need_rgb = any(not s["rgba"] for s in sinks)
     for i in range(anim.nframes):
-        if rgba:
-            f = anim.frame_rgba(i)
-            data = (np.clip(f, 0, 1) * 255 + 0.5).astype(np.uint8).tobytes()
-        else:
-            data = anim.frame_rgb(i).tobytes()
-        enc.stdin.write(data)
+        f = anim.frame_rgba(i)
+        data_rgba = (np.clip(f, 0, 1) * 255 + 0.5).astype(np.uint8).tobytes() if any(s["rgba"] for s in sinks) else None
+        data_rgb = None
+        if need_rgb:
+            a = f[:, :, 3:4]
+            data_rgb = (np.clip(f[:, :, :3] * a + bg * (1 - a), 0, 1) * 255 + 0.5).astype(np.uint8).tobytes()
+        for s, p in zip(sinks, procs):
+            p.stdin.write(data_rgba if s["rgba"] else data_rgb)
         if i % 30 == 0:
-            print(f"  {label}{i}/{anim.nframes}", flush=True)
-    enc.stdin.close()
-    enc.wait()
-    if enc.returncode != 0:
-        sys.exit(f"ffmpeg falló al escribir {path}")
+            print(f"  fotograma {i}/{anim.nframes}", flush=True)
+    for s, p in zip(sinks, procs):
+        p.stdin.close()
+        p.wait()
+        if p.returncode != 0:
+            sys.exit(f"ffmpeg falló al escribir {s['path']}")
+        print(f"Listo: {s['path']}")
 
 
 def main():
@@ -558,17 +571,16 @@ def main():
     same, total = anim.chroma_check(int(round(anim.t_typed * anim.fps)))
     print(f"  chroma check: {same} de {total} píxeles de los elementos coinciden con el fondo exacto")
 
+    sinks = []
     if args.alpha:
-        encode(anim, args.alpha, ["-c:v", "prores_ks", "-profile:v", "4444"], "yuva444p10le", rgba=True, label="alfa ")
-        print(f"Listo: {args.alpha} (fondo transparente)")
+        sinks.append({"path": args.alpha, "codec": ["-c:v", "prores_ks", "-profile:v", "4444"], "pix": "yuva444p10le", "rgba": True})
     if args.prores:
-        encode(anim, args.prores, ["-c:v", "prores_ks", "-profile:v", "3"], "yuv422p10le", label="prores ")
-        print(f"Listo: {args.prores} (ProRes 422 HQ)")
-    if args.out or not (args.alpha or args.prores):
-        out = args.out or "busqueda_chroma.mp4"
-        encode(anim, out, ["-c:v", "libx264", "-preset", "slow", "-crf", str(args.crf), "-movflags", "+faststart"],
-               "yuv420p", label="mp4 ")
-        print(f"Listo: {out}")
+        sinks.append({"path": args.prores, "codec": ["-c:v", "prores_ks", "-profile:v", "3"], "pix": "yuv422p10le", "rgba": False})
+    if args.out or not sinks:
+        sinks.append({"path": args.out or "busqueda_chroma.mp4", "rgba": False, "pix": "yuv420p",
+                      "codec": ["-c:v", "libx264", "-preset", "slow", "-crf", str(args.crf), "-movflags", "+faststart"]})
+    print("  salidas: " + ", ".join(s["path"] for s in sinks) + " (un solo pase de render)")
+    encode_all(anim, sinks)
 
 
 if __name__ == "__main__":
