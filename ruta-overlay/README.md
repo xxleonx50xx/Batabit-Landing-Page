@@ -1,23 +1,27 @@
 # Overlay de ruta animada + pin sobre video aéreo
 
-Animación superpuesta (estilo navegación de Google Maps) sobre `video_mapa.mov`:
+Animación superpuesta (estilo navegación de Google Maps, acabado motion-graphics) sobre `video_mapa.mov`:
 
-1. **Línea de ruta verde** que se dibuja progresivamente desde el borde inferior, sube por el
-   carril izquierdo de la avenida y termina sobre el edificio de techo blanco con paneles solares.
-2. **Pin de ubicación** del mismo verde que aparece en el fotograma exacto en que la línea llega
-   (efecto *pop* con rebote) y queda anclado al edificio aunque la cámara del dron se mueva.
+1. **Línea de ruta verde** que entra por el borde inferior, sube por el carril izquierdo de la avenida
+   y termina sobre el edificio de techo blanco con paneles solares. Trazo con degradado, borde oscuro,
+   brillo (glow), núcleo luminoso, "cometa" en la punta mientras se dibuja y un flujo de guiones que
+   avanza hacia el destino.
+2. **Pin de ubicación** del mismo verde que aparece en el fotograma exacto en que la línea llega:
+   cae desde arriba, se aplasta al impactar y rebota; emite dos ondas de pulso sobre el suelo y
+   despliega una etiqueta ("Tu destino", editable). Queda anclado al edificio aunque el dron avance.
 
 Todo se controla desde un solo archivo (`route.json`); el movimiento de cámara se compensa con
 `tracking.json`, generado automáticamente por `track.py`.
 
 ```
 ruta-overlay/
-├── route.json      ← ruta, colores, grosores, tiempos y puntos de rastreo (edita esto)
-├── tracking.json   ← homografía por fotograma (ya generado para video_mapa.mov)
-├── track.py        ← rastrea puntos fijos del terreno y genera tracking.json
-├── render.py       ← hornea la animación en un MP4 / ProRes con alfa / secuencia PNG
-├── overlay.html    ← previsualización en el navegador (video + SVG), con scrubber fotograma a fotograma
-└── overlay.js      ← lógica de la animación para la web (misma geometría que render.py)
+├── route.json        ← ruta, colores, grosores, tiempos, etiqueta y puntos de rastreo (edita esto)
+├── tracking.json     ← homografía por fotograma (ya generado para video_mapa.mov)
+├── track.py          ← rastrea puntos fijos del terreno y genera tracking.json
+├── render.py         ← hornea la animación en un MP4 / ProRes con alfa / secuencia PNG
+├── overlay.html      ← previsualización en el navegador (video + SVG), scrubber fotograma a fotograma
+├── overlay.js        ← lógica de la animación para la web (misma geometría y tiempos que render.py)
+└── fonts/            ← DM Sans Bold (licencia OFL) para la etiqueta del pin
 ```
 
 ## Requisitos
@@ -40,7 +44,8 @@ python3 render.py --video video_mapa.mov --out ruta_overlay_1080.mp4 --scale 0.5
 python3 render.py --video video_mapa.mov --out ruta_overlay_4k.mp4   --scale 1     # 2160x3840
 ```
 
-El MP4 conserva el audio original. `--scale 0.5` tarda ~2 min; `--scale 1` unos 8–10 min.
+El MP4 conserva el audio original. `--scale 0.5` tarda ~4 min; `--scale 1` unos 15–20 min
+(añade `--ss 1` para acelerarlo a costa de un antialiasing más simple).
 
 ### Otras salidas
 
@@ -52,11 +57,11 @@ python3 render.py --video video_mapa.mov --alpha overlay_alpha.mov --scale 1
 python3 render.py --video video_mapa.mov --png-seq overlay_png --scale 1
 
 # Un solo fotograma para revisar (t en segundos)
-python3 render.py --video video_mapa.mov --frame 2.7 --out revision_2_7.png
+python3 render.py --video video_mapa.mov --frame 2.9 --out revision_2_9.png
 ```
 
 En el editor de video, coloca el `.mov` con alfa (o la secuencia PNG) en una pista encima del video
-original, alineado al fotograma 0, con el mismo tamaño. No hace falta nada más: el overlay ya trae
+original, alineado al fotograma 0 y con el mismo tamaño. No hace falta nada más: el overlay ya trae
 compensado el movimiento de cámara.
 
 ## Previsualización en el navegador
@@ -75,20 +80,37 @@ python3 -m http.server 8000        # fetch() de los JSON necesita http://, no fi
 - `overlay.js` es independiente del render: puedes incrustarlo en una landing page tal cual
   (un `<video>` + un `<svg>` encima, ver `overlay.html`).
 
+## Línea de tiempo (valores por defecto)
+
+| Instante | Qué pasa |
+| --- | --- |
+| 0.25 s | La línea empieza a entrar por el borde inferior; el cometa blanco marca la punta. |
+| 0.25 → 2.60 s | Se dibuja con `easeInOutCubic` (arranque y llegada suaves); los guiones fluyen hacia el destino. |
+| 2.60 s (fotograma 78) | La línea llega al edificio; el cometa se apaga y **aparece el pin** arriba, cayendo. |
+| 2.90 s | Impacto: aplastamiento (squash), primera onda de pulso, sombra en el suelo. |
+| 2.90 → 3.20 s | Rebote corto; a los 3.05 s se despliega la etiqueta. |
+| 3.25 s | Segunda onda de pulso. |
+| → 4.00 s | Pin y etiqueta anclados al edificio hasta el final. |
+
 ## Ajustar la animación (`route.json`)
 
 | Clave | Qué controla |
 | --- | --- |
-| `route.points` | Puntos de control de la ruta, en píxeles del **fotograma 0** a resolución nativa. El primero está fuera de pantalla (y > 3840) para que la línea "entre" por el borde inferior; el último es el edificio (punta del pin). Se suaviza con una spline Catmull-Rom, así que bastan 6–10 puntos. |
-| `line.start` / `line.end` | Segundos en que la línea empieza y termina de dibujarse (0.25 → 2.70). El pin aparece exactamente en `line.end`. |
+| `route.points` | Puntos de control de la ruta, en píxeles del **fotograma 0** a resolución nativa. El primero queda justo fuera de pantalla (y > 3840) para que la línea "entre" por el borde inferior; el último es el edificio (punta del pin). Se suaviza con una spline Catmull-Rom: bastan 6–10 puntos. |
+| `line.start` / `line.end` | Segundos en que la línea empieza y termina de dibujarse. El pin aparece exactamente en `line.end`. |
 | `line.easing` | `easeInOutCubic` (suave), `easeOutCubic` o `linear`. |
-| `line.width` / `line.casing_width` | Grosor del trazo y del borde oscuro (px nativos). |
+| `line.width`, `casing_width`, `core_width`, `core_opacity` | Grosor del trazo, del borde oscuro y del núcleo luminoso (px nativos). |
+| `line.glow_width`, `glow_blur`, `glow_opacity` | Brillo alrededor de la línea. Pon `glow_opacity: 0` para un look plano. |
 | `line.shadow_*` | Sombra proyectada de la línea. |
-| `pin.animation` | `pop` (escala con rebote desde la punta) o `drop` (cae desde arriba y rebota). |
-| `pin.duration`, `pin.overshoot`, `pin.start_scale`, `pin.drop_height` | Ajuste fino del rebote. |
-| `pin.height`, `pin.head_radius`, `pin.hole_radius`, `pin.casing_width` | Geometría del pin (px nativos). |
-| `pin.ripple` | `true` añade un anillo que se expande al aterrizar (solo en la versión web). |
-| `colors.*` | Verde principal `#1FE36A`, borde `#0E8A42`, hueco del pin `#FFFFFF`, sombra `#000000`. |
+| `line.head` | Cometa en la punta: `radius`, `glow_radius`, `fade` (segundos que tarda en apagarse al llegar). |
+| `line.flow` | Guiones que avanzan: `dash`, `gap`, `speed` (px/s), `width`, `opacity`; `enabled: false` los quita. |
+| `pin.animation` | `drop` (cae, se aplasta y rebota) o `pop` (escala con rebote desde la punta). |
+| `pin.drop_height`, `fall_fraction`, `bounce_height`, `squash` | Ajuste fino de la caída: altura, parte de `duration` que dura la caída, altura del rebote y aplastamiento. |
+| `pin.duration`, `overshoot`, `start_scale` | Duración total del pin y parámetros del modo `pop`. |
+| `pin.height`, `head_radius`, `hole_radius`, `casing_width` | Geometría del pin (px nativos). |
+| `pin.ripple` | Ondas de pulso: `count`, `interval`, `duration`, `radius_from/to`, `width`, `opacity`. |
+| `pin.label` | Etiqueta: `text` (o `enabled: false`), `delay` tras el impacto, `font_size`, `padding_x/y`, `radius`, `gap`, `font`. |
+| `colors.*` | `line` → `line_bright` (degradado del trazo), `line_casing`, `line_core`, `glow`, `head`, `flow`, `pin_top` → `pin_bottom`, `pin_casing`, `pin_hole`, `ripple`, `label_bg`, `label_text`, `shadow`. |
 | `anchors` | Puntos fijos del terreno que rastrea `track.py` (ver abajo). |
 | `tracking` | Nombre del archivo de rastreo; pon `null` si la cámara es fija. |
 

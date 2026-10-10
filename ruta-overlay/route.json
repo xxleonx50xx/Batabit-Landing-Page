@@ -6,133 +6,135 @@
     "duration": 4.0
   },
   "colors": {
-    "line": "#1FE36A",
-    "line_casing": "#0E8A42",
-    "pin": "#1FE36A",
-    "pin_casing": "#0E8A42",
+    "line": "#12CC57",
+    "line_bright": "#3CFF88",
+    "line_casing": "#0A6E33",
+    "line_core": "#D8FFE6",
+    "glow": "#2BFF7A",
+    "head": "#FFFFFF",
+    "flow": "#FFFFFF",
+    "pin_top": "#5CFF9A",
+    "pin_bottom": "#0FB24F",
+    "pin_casing": "#0A6E33",
     "pin_hole": "#FFFFFF",
+    "ripple": "#3CFF88",
+    "label_bg": "#FFFFFF",
+    "label_text": "#0B2E18",
     "shadow": "#000000"
   },
   "line": {
-    "width": 44,
-    "casing_width": 62,
+    "width": 42,
+    "casing_width": 58,
+    "core_width": 10,
+    "core_opacity": 0.3,
+    "glow_width": 120,
+    "glow_blur": 26,
+    "glow_opacity": 0.45,
     "shadow_opacity": 0.35,
-    "shadow_blur": 14,
-    "shadow_offset": [
-      0,
-      10
-    ],
+    "shadow_blur": 18,
+    "shadow_offset": [0, 14],
     "start": 0.25,
-    "end": 2.7,
+    "end": 2.6,
     "easing": "easeInOutCubic",
-    "smoothing": "catmull-rom",
-    "samples": 600
+    "samples": 600,
+    "head": {
+      "enabled": true,
+      "radius": 30,
+      "glow_radius": 95,
+      "fade": 0.3
+    },
+    "flow": {
+      "enabled": true,
+      "dash": 70,
+      "gap": 150,
+      "speed": 700,
+      "width": 14,
+      "opacity": 0.5
+    }
   },
   "pin": {
-    "height": 400,
-    "head_radius": 112,
-    "hole_radius": 42,
-    "casing_width": 10,
-    "animation": "pop",
+    "height": 380,
+    "head_radius": 104,
+    "hole_radius": 38,
+    "casing_width": 8,
+    "animation": "drop",
+    "delay": 0.0,
     "duration": 0.6,
+    "drop_height": 700,
+    "drop_start_scale": 0.8,
+    "fall_fraction": 0.5,
+    "bounce_height": 70,
+    "squash": 0.16,
+    "squash_width": 0.1,
     "overshoot": 1.7,
-    "drop_height": 420,
-    "ripple": false,
-    "shadow_opacity": 0.3,
-    "shadow_blur": 18,
     "start_scale": 0.15,
-    "delay": 0.0
+    "shadow_opacity": 0.35,
+    "shadow_blur": 16,
+    "ripple": {
+      "enabled": true,
+      "count": 2,
+      "interval": 0.35,
+      "duration": 1.0,
+      "radius_from": 40,
+      "radius_to": 330,
+      "width": 12,
+      "opacity": 0.75
+    },
+    "label": {
+      "enabled": true,
+      "text": "Tu destino",
+      "delay": 0.15,
+      "duration": 0.35,
+      "font_size": 58,
+      "padding_x": 36,
+      "padding_y": 22,
+      "radius": 44,
+      "gap": 30,
+      "font": "fonts/DMSans-Bold.ttf"
+    }
   },
   "route": {
     "points": [
-      [
-        1128,
-        3870
-      ],
-      [
-        1170,
-        3300
-      ],
-      [
-        1225,
-        2650
-      ],
-      [
-        1275,
-        2200
-      ],
-      [
-        1290,
-        2000
-      ],
-      [
-        1230,
-        1860
-      ],
-      [
-        1080,
-        1770
-      ],
-      [
-        900,
-        1725
-      ],
-      [
-        740,
-        1705
-      ]
+      [1128, 3870],
+      [1170, 3300],
+      [1225, 2650],
+      [1275, 2200],
+      [1290, 2000],
+      [1230, 1860],
+      [1080, 1770],
+      [900, 1725],
+      [740, 1705]
     ]
   },
   "anchors": [
     {
       "name": "paneles",
-      "xy": [
-        740,
-        1700
-      ],
+      "xy": [740, 1700],
       "weight": 25
     },
     {
       "name": "letrero_oxxo",
-      "xy": [
-        1045,
-        1465
-      ]
+      "xy": [1045, 1465]
     },
     {
       "name": "techo_rojo_ac",
-      "xy": [
-        640,
-        1630
-      ]
+      "xy": [640, 1630]
     },
     {
       "name": "cebra",
-      "xy": [
-        1100,
-        1920
-      ]
+      "xy": [1100, 1920]
     },
     {
       "name": "poste_luz",
-      "xy": [
-        1565,
-        3040
-      ]
+      "xy": [1565, 3040]
     },
     {
       "name": "techo_gris",
-      "xy": [
-        560,
-        2700
-      ]
+      "xy": [560, 2700]
     },
     {
       "name": "techo_rojo_sur",
-      "xy": [
-        470,
-        2900
-      ]
+      "xy": [470, 2900]
     }
   ],
   "tracking": "tracking.json"
