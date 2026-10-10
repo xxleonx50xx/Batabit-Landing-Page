@@ -1,0 +1,5 @@
+# Videos y salidas pesadas: no se versionan
+*.mov
+*.mp4
+*.png
+overlay_png/

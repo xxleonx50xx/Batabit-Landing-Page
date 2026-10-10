@@ -1,0 +1,139 @@
+{
+  "video": {
+    "width": 2160,
+    "height": 3840,
+    "fps": 30,
+    "duration": 4.0
+  },
+  "colors": {
+    "line": "#1FE36A",
+    "line_casing": "#0E8A42",
+    "pin": "#1FE36A",
+    "pin_casing": "#0E8A42",
+    "pin_hole": "#FFFFFF",
+    "shadow": "#000000"
+  },
+  "line": {
+    "width": 44,
+    "casing_width": 62,
+    "shadow_opacity": 0.35,
+    "shadow_blur": 14,
+    "shadow_offset": [
+      0,
+      10
+    ],
+    "start": 0.25,
+    "end": 2.7,
+    "easing": "easeInOutCubic",
+    "smoothing": "catmull-rom",
+    "samples": 600
+  },
+  "pin": {
+    "height": 400,
+    "head_radius": 112,
+    "hole_radius": 42,
+    "casing_width": 10,
+    "animation": "pop",
+    "duration": 0.6,
+    "overshoot": 1.7,
+    "drop_height": 420,
+    "ripple": false,
+    "shadow_opacity": 0.3,
+    "shadow_blur": 18,
+    "start_scale": 0.15,
+    "delay": 0.0
+  },
+  "route": {
+    "points": [
+      [
+        1128,
+        3870
+      ],
+      [
+        1170,
+        3300
+      ],
+      [
+        1225,
+        2650
+      ],
+      [
+        1275,
+        2200
+      ],
+      [
+        1290,
+        2000
+      ],
+      [
+        1230,
+        1860
+      ],
+      [
+        1080,
+        1770
+      ],
+      [
+        900,
+        1725
+      ],
+      [
+        740,
+        1705
+      ]
+    ]
+  },
+  "anchors": [
+    {
+      "name": "paneles",
+      "xy": [
+        740,
+        1700
+      ],
+      "weight": 25
+    },
+    {
+      "name": "letrero_oxxo",
+      "xy": [
+        1045,
+        1465
+      ]
+    },
+    {
+      "name": "techo_rojo_ac",
+      "xy": [
+        640,
+        1630
+      ]
+    },
+    {
+      "name": "cebra",
+      "xy": [
+        1100,
+        1920
+      ]
+    },
+    {
+      "name": "poste_luz",
+      "xy": [
+        1565,
+        3040
+      ]
+    },
+    {
+      "name": "techo_gris",
+      "xy": [
+        560,
+        2700
+      ]
+    },
+    {
+      "name": "techo_rojo_sur",
+      "xy": [
+        470,
+        2900
+      ]
+    }
+  ],
+  "tracking": "tracking.json"
+}
