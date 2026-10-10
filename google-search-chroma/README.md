@@ -1,25 +1,26 @@
 # Búsqueda en Google · motion graphics sobre fondo chroma
 
-Animación limpia y moderna de una búsqueda en Google, pensada para incrustarse en video con chroma key:
-todo ocurre sobre un fondo sólido **azul puro #0000FF** (ningún elemento usa ese tono) a **60 fps** y con
-**motion blur real** en los movimientos de escala y desplazamiento.
+Animación limpia, moderna y dinámica de una búsqueda en Google, pensada para incrustarse en video con chroma
+key: todo ocurre sobre un fondo sólido **azul puro #0000FF** (ningún elemento usa ese tono) a **60 fps** y con
+**motion blur real** en todos los movimientos.
 
-Secuencia (4.97 s con el texto por defecto):
+Secuencia (5.24 s con el texto por defecto):
 
 | Instante | Qué pasa |
 | --- | --- |
-| 0.00 → 0.55 s | La barra de búsqueda (blanca, bordes redondeados, lupa a la izquierda, micrófono a la derecha) aparece en el centro con un scale-up suave (72 % → 100 %, ligero sobreimpulso) y fundido de entrada. |
-| 0.55 → 1.00 s | Reposo con el cursor parpadeando. |
-| 1.00 → 2.85 s | Se escribe "Donde está GreenMex?" letra a letra con ritmo humano (85 ms ± 30 ms, pausa extra tras cada espacio); el cursor queda fijo mientras se teclea. |
-| 2.85 → 3.50 s | Pausa; el cursor parpadea y desaparece 0.12 s antes del "Enter". |
-| 3.50 → 3.82 s | "Enter": la lupa rebota (×1.32) y se tiñe de azul Google #4285F4; la barra da un empujón de 10 px hacia arriba. |
-| 3.82 → 4.17 s | Pausa breve. |
-| 4.17 → 4.62 s | La barra se desliza 260 px hacia arriba y se desvanece (con motion blur). |
-| 4.62 → 4.97 s | Solo el fondo azul. |
+| 0.00 → 0.60 s | La barra (blanca, bordes redondeados) entra con un rebote elástico desde el centro (55 % → 100 %, sobreimpulso) y una leve subida; la lupa y el micrófono aparecen en cascada con su propio rebote. |
+| 0.60 → 1.00 s | Reposo con el cursor parpadeando. Una flotación de ±3 px mantiene vivo el conjunto durante toda la pieza. |
+| 1.00 → 3.00 s | Se escribe "¿Donde está GreenMex?" letra a letra con ritmo humano (85 ms ± 30 ms, pausa extra tras cada espacio). Cada letra "salta" al teclearse y el cursor da un pequeño pulso; queda fijo mientras se teclea y parpadea en las pausas. |
+| 1.54 s | A partir de la sexta letra se despliega un panel de sugerencias tipo Google (la primera fila completa lo que falta por escribir en negrita; las demás son sugerencias editables). Las filas entran escalonadas. |
+| 3.00 → 3.60 s | Pausa; el cursor desaparece y la primera sugerencia se resalta en gris. |
+| 3.60 → 4.00 s | "Enter": la barra se presiona y da un empujón de 12 px, la lupa rebota (×1.4) y se tiñe de azul Google emitiendo una onda tipo Material, y el panel se pliega. |
+| 3.72 → 4.27 s | Una línea de progreso azul recorre el borde inferior de la barra ("buscando…"). |
+| 4.47 → 4.89 s | La barra sale disparada hacia arriba con estiramiento, fundido y motion blur. |
+| 4.89 → 5.24 s | Solo el fondo azul. |
 
 ```
 google-search-chroma/
-├── search.json       ← texto, tamaños, colores, tiempos, motion blur (edita esto)
+├── search.json       ← texto, sugerencias, tamaños, colores, tiempos y motion blur (edita esto)
 ├── search_anim.py    ← renderizador (Python + Pillow + numpy + ffmpeg)
 ├── fonts/            ← Roboto Regular y Medium (licencia OFL)
 └── README.md
@@ -48,19 +49,20 @@ python3 search_anim.py --prores busqueda_chroma_422hq.mov
 python3 search_anim.py --alpha busqueda_alpha.mov
 
 # Otro texto, otro chroma, un solo fotograma de revisión, hoja de contactos
-python3 search_anim.py --text "Donde está GreenMex?" --bg "#00FF00" --out verde.mp4
+python3 search_anim.py --text "¿Dónde está GreenMex?" --bg "#00FF00" --out verde.mp4
 python3 search_anim.py --frame 2.4 --out revision.png
 python3 search_anim.py --contact hoja.png
 ```
 
-Un render de 5 s tarda ~2–3 min por salida (los fotogramas con movimiento se componen con 8 sub-fotogramas).
+Un render de 5 s tarda ~3–5 min por salida (casi todos los fotogramas tienen movimiento y se componen con
+4 u 8 sub-fotogramas).
 
 ## Chroma key en postproducción
 
 - Color de fondo exacto: `#0000FF` (R 0, G 0, B 255). El script comprueba al arrancar que ningún píxel de los
   elementos coincida con ese color.
-- La única zona cercana al tono del fondo es la **sombra** bajo la barra (azul más oscuro). Si el keyer se la
-  come o deja halo, usa `--no-shadow` o baja `bar.shadow.opacity` en search.json.
+- La única zona cercana al tono del fondo es la **sombra** bajo la barra y el panel (azul más oscuro). Si el
+  keyer se la come o deja halo, usa `--no-shadow` o baja `bar.shadow.opacity` en search.json.
 - Para el mejor resultado usa el ProRes 422 HQ (`--prores`) o, mejor aún, el ProRes 4444 con alfa
   (`--alpha`), que no necesita key.
 - El MP4 H.264 (4:2:0, CRF 14) es para previsualizar y compartir; también se puede keyear, con un poco de
@@ -72,15 +74,20 @@ Las medidas están en unidades de diseño de un lienzo de 1080 px de ancho (se e
 
 | Clave | Qué controla |
 | --- | --- |
-| `text`, `font` | Texto que se escribe y tipografía (Roboto Regular por defecto; también hay Roboto Medium en `fonts/`). |
+| `text`, `font`, `font_medium` | Texto que se escribe y tipografías (Roboto Regular para el texto, Medium para la parte en negrita de la primera sugerencia). |
 | `size`, `fps`, `background` | Tamaño por defecto, framerate y color chroma. Se pueden sobrescribir con `--size`, `--fps`, `--bg`. |
 | `bar.*` | Ancho 880, alto 124, radio 62, color blanco, sombra (opacidad 0.22, desenfoque 22, desplazamiento 0/6). `center_y_ratio` sitúa la barra verticalmente. |
 | `icons.*` | Tamaño 44, relleno lateral 40, color de la lupa (#9AA0A6) y su color al pulsar Enter (#4285F4); `mic_style` = `google` (azul, verde, amarillo, rojo) o `gray`. |
 | `typography.*`, `caret.*` | Tamaño 44 y color #202124 del texto; cursor de 3 × 52 px que parpadea cada 1.06 s. |
-| `timing.appear`, `appear_scale_from`, `appear_overshoot` | Duración y curva del scale-up inicial. |
+| `dropdown.*` | Panel de sugerencias: `enabled`, `after_chars` (letra a partir de la cual aparece), `suggestions` (las filas 2–4), alto de fila, tamaño de letra, tiempos de apertura/cierre/escalonado, color del resaltado (`hover_color`) y del acento. |
+| `timing.appear`, `appear_scale_from`, `appear_overshoot`, `appear_rise` | Entrada de la barra: duración, escala inicial, rebote y subida. |
+| `timing.icons_pop_delay`, `icons_pop` | Cuándo y cuánto tardan en aparecer la lupa y el micrófono. |
+| `timing.idle_float`, `idle_float_period` | Amplitud (px) y periodo (s) de la flotación continua; 0 la desactiva. |
 | `timing.type_interval`, `type_jitter`, `type_space_pause`, `type_seed` | Ritmo de escritura (cambia `type_seed` para otra variación "humana"). |
+| `timing.char_pop`, `char_rise` | Salto de cada letra al aparecer: duración y altura. |
 | `timing.pause_after_typing`, `caret_hide_before_enter` | Pausa tras escribir y cuándo desaparece el cursor. |
-| `timing.enter`, `enter_icon_scale`, `enter_nudge` | Reacción al Enter: duración, rebote de la lupa y empujón de la barra. |
-| `timing.exit`, `exit_style`, `exit_distance`, `tail` | Salida: `slide-fade` (por defecto), `slide` o `fade`; distancia y cola de fondo sólido. |
-| `motion_blur.samples`, `shutter` | Sub-fotogramas por fotograma en movimiento (8) y obturador (0.5 = 180°). |
+| `timing.enter`, `enter_icon_scale`, `enter_press`, `enter_nudge`, `ripple` | Reacción al Enter: duración, rebote de la lupa, presión y empujón de la barra, duración de la onda. |
+| `timing.progress_delay`, `progress` | Línea de progreso azul: retardo tras el Enter y duración del barrido. |
+| `timing.exit`, `exit_style`, `exit_distance`, `exit_stretch`, `tail` | Salida: `slide-fade` (por defecto), `slide` o `fade`; distancia, estiramiento y cola de fondo sólido. |
+| `motion_blur.samples`, `samples_small`, `shutter` | Sub-fotogramas por fotograma en movimiento grande (8) y pequeño (4), y obturador (0.5 = 180°). |
 | `supersample` | Antialiasing espacial (2 = render a doble resolución). |
