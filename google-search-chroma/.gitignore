@@ -1,0 +1,4 @@
+# Salidas de video: no se versionan
+*.mp4
+*.mov
+*.png

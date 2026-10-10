@@ -1,0 +1,54 @@
+{
+  "size": [1080, 1920],
+  "fps": 60,
+  "background": "#0000FF",
+  "text": "Donde está GreenMex?",
+  "font": "fonts/Roboto-Regular.ttf",
+
+  "bar": {
+    "width": 880,
+    "height": 124,
+    "radius": 62,
+    "center_y_ratio": 0.5,
+    "color": "#FFFFFF",
+    "shadow": { "opacity": 0.22, "blur": 22, "offset": [0, 6] }
+  },
+
+  "icons": {
+    "size": 44,
+    "padding": 40,
+    "stroke": 4.2,
+    "search_color": "#9AA0A6",
+    "search_active_color": "#4285F4",
+    "mic_style": "google",
+    "mic_colors": { "capsule": "#4285F4", "stem": "#34A853", "left": "#FBBC05", "right": "#EA4335" },
+    "mic_gray": "#9AA0A6"
+  },
+
+  "typography": { "size": 44, "color": "#202124", "gap_after_icon": 26 },
+  "caret": { "width": 3, "height": 52, "blink": 1.06 },
+
+  "timing": {
+    "appear": 0.55,
+    "appear_scale_from": 0.72,
+    "appear_overshoot": 1.25,
+    "idle_before_typing": 0.45,
+    "type_interval": 0.085,
+    "type_jitter": 0.03,
+    "type_space_pause": 0.07,
+    "type_seed": 7,
+    "pause_after_typing": 0.65,
+    "caret_hide_before_enter": 0.12,
+    "enter": 0.32,
+    "enter_icon_scale": 1.32,
+    "enter_nudge": 10,
+    "hold_after_enter": 0.35,
+    "exit": 0.45,
+    "exit_style": "slide-fade",
+    "exit_distance": 260,
+    "tail": 0.35
+  },
+
+  "motion_blur": { "samples": 8, "shutter": 0.5 },
+  "supersample": 2
+}
